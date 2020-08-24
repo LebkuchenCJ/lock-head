@@ -1,12 +1,19 @@
-const readline = require("readline")
+const inquirer = require("inquirer");
 
+const questions = [
+  {
+    type: "password",
+    name: "password",
+    message: "Whats your password?",
+  },
+  {
+    type: "input",
+    name: "name",
+    message: "Whats your name?",
+  },
+];
 
-const interface = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-interface.question(`What's your password?`, (password) => {
-  console.log(`Your password is ${password}!`);
-  interface.close();
+inquirer.prompt(questions).then((answers) => {
+  console.log(`Your password is ${answers.password}!`);
+  console.log(`Your name is ${answers.name}!`);
 });

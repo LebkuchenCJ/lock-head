@@ -5,7 +5,7 @@ const {
   CHOICE_GET,
   CHOICE_SET,
 } = require("./lib/questions");
-const { readPassword } = require("./lib/passwords");
+const { readPassword, writePassword } = require("./lib/passwords");
 
 async function main() {
   const { masterPassword, action } = await askStartQuestions();
@@ -25,6 +25,7 @@ async function main() {
     } else if (action === CHOICE_SET) {
       console.log("Now Set a password");
       const { key, password } = await askSetPasswordQuestions();
+      await writePassword(key, password);
       console.log(`New Password: ${key} = ${password}`);
     }
   } else {
@@ -34,6 +35,19 @@ async function main() {
 
 main();
 
+/* try {
+  const passwordsJSON = await fs.readFile("./passwords.json", "utf8");
+  const passwords = JSON.parse(passwordsJSON);
+  passwords[newAnswers.key] = newAnswers.newPassword;
+  const newObject = JSON.stringify(passwords);
+  fs.writeFile("./passwords.json", newObject, (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+  });
+} catch (error) {}
+ */
 /* const inquirer = require("inquirer");
 const { async } = require("rxjs");
 

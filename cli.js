@@ -26,7 +26,7 @@ async function main() {
     const collection = database.collection("passwords");
     await collection.insertOne({
       name: "wifi",
-      vlaue: "password123",
+      vlaue: "password124",
     });
     await client.close();
 

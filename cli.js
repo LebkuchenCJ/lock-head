@@ -17,19 +17,23 @@ async function main() {
       console.log("Now Get a password");
       const { key } = await askGetPasswordQuestions();
       try {
-        const password = await readPassword(key);
-        const decryptedPassword = decrypt(password, masterPassword);
-        console.log(`Your ${key} password is ${decryptedPassword}`);
+        const encryptedPassword = await readPassword(key);
+        const password = decrypt(encryptedPassword, masterPassword);
+        console.log(`Your ${key} password is ${password}`);
       } catch (error) {
         console.error("Something went wrong 😑");
         // What to do now?
       }
     } else if (action === CHOICE_SET) {
       console.log("Now Set a password");
+      try {
       const { key, password } = await askSetPasswordQuestions();
       const encryptedPassword = encrypt(password, masterPassword);
       await writePassword(key, encryptedPassword);
       console.log(`Password for ${key} is set.`);
+    } catch (error) {
+      console.error("Something went wrong 😑");
+      // What to do now?
     }
   } else {
     console.log("Master Password is incorrect!");

@@ -15,6 +15,12 @@ const { encrypt, decrypt } = require("./lib/crypto");
 async function main() {
   const { masterPassword, action } = await askStartQuestions();
   const originalMasterPassword = await readMasterPassword();
+
+  if (masterPassword !== originalMasterPassword) {
+    console.log("Master Password is incorrect!");
+    return;
+  }
+
   if (masterPassword === originalMasterPassword) {
     console.log("Master Password is correct!");
     if (action === CHOICE_GET) {
@@ -40,8 +46,6 @@ async function main() {
         // What to do now?
       }
     }
-  } else {
-    console.log("Master Password is incorrect!");
   }
 }
 

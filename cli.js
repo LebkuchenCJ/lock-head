@@ -6,6 +6,7 @@ const {
   CHOICE_SET,
 } = require("./lib/questions");
 const { readPassword, writePassword } = require("./lib/passwords");
+const { encrypt, decrypt } = require("./lib/crypto");
 
 async function main() {
   const { masterPassword, action } = await askStartQuestions();
@@ -17,7 +18,8 @@ async function main() {
       const { key } = await askGetPasswordQuestions();
       try {
         const password = await readPassword(key);
-        console.log(`Your ${key} password is ${password}`);
+        const decryptedPassword = decrypt(password, masterPassword);
+        console.log(`Your ${key} password is ${decryptedPassword}`);
       } catch (error) {
         console.error("Something went wrong 😑");
         // What to do now?
@@ -25,8 +27,9 @@ async function main() {
     } else if (action === CHOICE_SET) {
       console.log("Now Set a password");
       const { key, password } = await askSetPasswordQuestions();
-      await writePassword(key, password);
-      console.log(`New Password: ${key} = ${password}`);
+      const encryptedPassword = encrypt(password, masterPassword);
+      await writePassword(key, encryptedPassword);
+      console.log(`Password for ${key} is set.`);
     }
   } else {
     console.log("Master Password is incorrect!");

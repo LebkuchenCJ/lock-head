@@ -23,12 +23,6 @@ async function main() {
   try {
     await client.connect();
     const database = client.db("lock_head");
-    const collection = database.collection("passwords");
-    await collection.insertOne({
-      name: "wifi",
-      vlaue: "password124",
-    });
-    await client.close();
 
     const originalMasterPassword = await readMasterPassword();
     if (!originalMasterPassword) {
@@ -40,36 +34,35 @@ async function main() {
     }
 
     const { masterPassword, action } = await askStartQuestions();
+
     const verifiedHash = verifyHash(masterPassword, originalMasterPassword);
     if (!verifiedHash) {
       console.log("Master Password is incorrect!");
       return;
     }
 
-    if (verifiedHash) {
-      console.log("Master Password is correct!");
-      if (action === CHOICE_GET) {
-        console.log("Now Get a password");
-        const { key } = await askGetPasswordQuestions();
-        try {
-          const encryptedPassword = await readPassword(key);
-          const password = decrypt(encryptedPassword, masterPassword);
-          console.log(`Your ${key} password is ${password}`);
-        } catch (error) {
-          console.error("Something went wrong 😑");
-          // What to do now?
-        }
-      } else if (action === CHOICE_SET) {
-        console.log("Now Set a password");
-        try {
-          const { key, password } = await askSetPasswordQuestions();
-          const encryptedPassword = encrypt(password, masterPassword);
-          await writePassword(key, encryptedPassword, database);
-          console.log(`Password for ${key} is set.`);
-        } catch (error) {
-          console.error("Something went wrong 😑");
-          // What to do now?
-        }
+    console.log("Master Password is correct!");
+    if (action === CHOICE_GET) {
+      console.log("Now Get a password");
+      const { key } = await askGetPasswordQuestions();
+      try {
+        const encryptedPassword = await readPassword(key);
+        const password = decrypt(encryptedPassword, masterPassword);
+        console.log(`Your ${key} password is ${password}`);
+      } catch (error) {
+        console.error("Something went wrong 😑");
+        // What to do now?
+      }
+    } else if (action === CHOICE_SET) {
+      console.log("Now Set a password");
+      try {
+        const { key, password } = await askSetPasswordQuestions();
+        const encryptedPassword = encrypt(password, masterPassword);
+        await writePassword(key, encryptedPassword, database);
+        console.log(`Password for ${key} is set.`);
+      } catch (error) {
+        console.error("Something went wrong 😑");
+        // What to do now?
       }
     }
   } finally {

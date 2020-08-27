@@ -1,16 +1,34 @@
+require("dotenv").config();
+
 const express = require("express");
-//const bodyParser = require("body-parser");
-
+const bodyParser = require("body-parser");
 const app = express();
+const { MongoClient } = require("mongodb");
 
+const client = new MongoClient(process.env.MONGO_URL);
 const port = 3000;
 
-app.listen(port, function () {
-  console.log(`listening on ${port}`);
-});
+async function main() {
+  await client.connect();
+  const database = client.db(process.env.MONGO_DB_NAME);
+  const quotesCollection = database.collection("quotes");
 
-app.get("/", (req, res) => {});
+  app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post("/quotes", (req, res) => {
-  console.log("Hellooooooooooooooooo!");
-});
+  app.get("/", (request, response) => {
+    response.sendFile(__dirname + "/index.html");
+  });
+  app.post("/quotes", (request, response) => {
+    quotesCollection
+      .insertOne(request.body)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((error) => console.error(error));
+  });
+
+  app.listen(port, () => {
+    console.log(`Ready. App is listening on http://localhost:${port}`);
+  });
+}
+main();

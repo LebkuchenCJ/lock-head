@@ -2,33 +2,35 @@ require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const app = express();
 const { MongoClient } = require("mongodb");
+const { writePassword } = require("./lib/passwords");
+const { encrypt, decrypt } = require("./lib/crypto");
 
-const client = new MongoClient(process.env.MONGO_URL);
+const client = new MongoClient(process.env.MONGO_URL, {
+  useUnifiedTopology: true,
+});
+
+const app = express();
+app.use(bodyParser.json());
+
 const port = 3000;
 
 async function main() {
   await client.connect();
+
   const database = client.db(process.env.MONGO_DB_NAME);
-  const quotesCollection = database.collection("quotes");
+  const masterPassword = process.env.MASTER_PASSWORD;
 
-  app.use(bodyParser.urlencoded({ extended: true }));
-
-  app.get("/", (request, response) => {
-    response.sendFile(__dirname + "/index.html");
-  });
-  app.post("/quotes", (request, response) => {
-    quotesCollection
-      .insertOne(request.body)
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((error) => console.error(error));
+  app.post("/api/passwords", async (request, response) => {
+    console.log("POST on /api/passwords");
+    const { name, value } = request.body;
+    const encryptedPassword = encrypt(value, masterPassword);
+    await writePassword(name, encryptedPassword, database);
+    response.status(201).send("Password created");
   });
 
   app.listen(port, () => {
-    console.log(`Ready. App is listening on http://localhost:${port}`);
+    console.log(`Runns on port: ${port}`);
   });
 }
 main();

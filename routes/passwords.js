@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { encrypt, decrypt } = require("../lib/crypto");
 const { writePassword, readPassword } = require("../lib/passwords");
+const jwt = require("jsonwebtoken");
 
 function createPasswordsRouter(database, masterPassword) {
   router.get("/", async (request, response) => {
@@ -12,6 +13,9 @@ function createPasswordsRouter(database, masterPassword) {
   router.get("/:name", async (request, response) => {
     try {
       const { name } = request.params;
+      const { authToken } = request.cookies;
+      const { username } = jwt.verify(authToken, masterPassword);
+      console.log(username);
       const password = await readPassword(name, database);
       if (!password) {
         response.status(404).send(`Password ${name} not found`);

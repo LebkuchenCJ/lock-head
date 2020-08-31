@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
 
 const bodyParser = require("body-parser");
+const { response } = require("express");
 
-function createUsersRouter(database) {
+function createUsersRouter(database, masterPassword) {
   const userCollection = database.collection("users");
   router.get("/", (request, response) => {
     response.send("Huhu");
@@ -20,7 +22,11 @@ function createUsersRouter(database) {
         response.status(401).send("Wrong email or password");
         return;
       }
-      console.log(user);
+      const token = jwt.sign({ username }, masterPassword, {
+        expiresIn: "360s",
+      });
+      console.log(token);
+
       response.send("Logged In");
     } catch (error) {
       console.error(error);

@@ -12,6 +12,10 @@ const client = new MongoClient(process.env.MONGO_URL, {
 
 const app = express();
 app.use(bodyParser.json());
+app.use((request, response, next) => {
+  console.log(`Request ${request.method} on ${request.url}`);
+  next();
+});
 
 const port = 3000;
 

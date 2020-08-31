@@ -22,10 +22,17 @@ async function main() {
   const masterPassword = process.env.MASTER_PASSWORD;
 
   app.get("/api/passwords/:name", async (request, response) => {
-    const { name } = request.params;
-    const password = await readPassword(name, database);
-    const decryptedPassword = decrypt(password, masterPassword);
-    response.status(200).send(decryptedPassword);
+    try {
+      const { name } = request.params;
+      const password = await readPassword(name, database);
+      if (!encryptedPassword) {
+        response.status(404).send(`Password ${name} not found`);
+      }
+      const decryptedPassword = decrypt(password, masterPassword);
+      response.status(200).send(decryptedPassword);
+    } catch (error) {
+      return null;
+    }
   });
 
   app.post("/api/passwords", async (request, response) => {

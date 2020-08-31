@@ -10,11 +10,23 @@ function createUsersRouter(database) {
   });
 
   router.post("/login", async (request, response) => {
-    const { username, password } = request.body;
-    console.log(username, password);
-    response.send("Logged In");
+    try {
+      const { username, password } = request.body;
+      const user = await userCollection.findOne({
+        username,
+        password,
+      });
+      if (!user) {
+        response.status(401).send("Wrong email or password");
+        return;
+      }
+      console.log(user);
+      response.send("Logged In");
+    } catch (error) {
+      console.error(error);
+      response.status(500).send(error.message);
+    }
   });
-
   return router;
 }
 module.exports = createUsersRouter;

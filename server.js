@@ -22,8 +22,11 @@ app.use((request, response, next) => {
 const port = 3000;
 
 async function main() {
-  await client.connect();
-
+  try {
+    await client.connect();
+  } catch (error) {
+    console.log("Doof");
+  }
   const database = client.db(process.env.MONGO_DB_NAME);
   const masterPassword = process.env.MASTER_PASSWORD;
 
@@ -31,7 +34,7 @@ async function main() {
   app.use("/api/users", createUsersRouter(database, masterPassword));
 
   app.listen(port, () => {
-    console.log(`Runns on port: ${port}`);
+    console.log(`Runs on port: ${port}`);
   });
 }
 main();

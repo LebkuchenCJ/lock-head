@@ -13,7 +13,7 @@ function createPasswordsRouter(database, masterPassword) {
   router.use((request, response, next) => {
     try {
       const { authToken } = request.cookies;
-      const { username } = jwt.verify(authToken, masterPassword);
+      const { username } = jwt.verify(authToken, process.env.JWT_SECRET);
       console.log(`Allow accedd to ${username}`);
       next();
     } catch (error) {

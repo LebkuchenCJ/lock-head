@@ -25,7 +25,7 @@ function createUsersRouter(database, masterPassword) {
       const token = jwt.sign({ username }, masterPassword, {
         expiresIn: "360s",
       });
-      console.log(token);
+      response.setHeader("Set-Cookie", `authToken=${token};path=/;Max-Age=360`);
 
       response.send("Logged In");
     } catch (error) {

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import "./App.css";
 
-async function createPassword(name, password) {
+async function createPassword(name, value) {
   const data = {
     name,
-    password,
+    value,
   };
+  console.log(data);
+
   const response = await fetch("/api/passwords/", {
     method: "POST",
     headers: {
@@ -13,6 +15,8 @@ async function createPassword(name, password) {
     },
     body: JSON.stringify(data),
   });
+  const result = await response.text();
+  alert(result);
 }
 
 async function login() {

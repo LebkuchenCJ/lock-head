@@ -34,7 +34,7 @@ function createPasswordsRouter(database, masterPassword) {
         response.status(404).send(`Password ${name} not found`);
       }
       const decryptedPassword = decrypt(password, masterPassword);
-      response.status(200).send(decryptedPassword);
+      response.status(200).json({ decryptedPassword });
     } catch (error) {
       console.log(error);
       response.status(500).send(error.message);

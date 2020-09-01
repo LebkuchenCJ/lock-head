@@ -6,6 +6,17 @@ const { writePassword, readPassword } = require("../lib/passwords");
 const jwt = require("jsonwebtoken");
 
 function createPasswordsRouter(database, masterPassword) {
+  router.use((request, response, next) => {
+    try {
+      const { authToken } = request.cookies;
+      const { username } = jwt.verify(authToken, masterPassword);
+      console.log(`Allow accedd to ${username}`);
+      next();
+    } catch (error) {
+      response.status(401).send("Access denied.");
+    }
+  });
+
   router.get("/", async (request, response) => {
     response.send("Rest a bit");
   });
@@ -13,9 +24,7 @@ function createPasswordsRouter(database, masterPassword) {
   router.get("/:name", async (request, response) => {
     try {
       const { name } = request.params;
-      const { authToken } = request.cookies;
-      const { username } = jwt.verify(authToken, masterPassword);
-      console.log(username);
+
       const password = await readPassword(name, database);
       if (!password) {
         response.status(404).send(`Password ${name} not found`);
@@ -36,7 +45,7 @@ function createPasswordsRouter(database, masterPassword) {
       const password = await readPassword(name, database);
 
       if (password) {
-        response.status(403).send(`Password ${name} is already declared.`);
+        response.status(409).send(`Password ${name} is already declared.`);
         return;
       }
 
@@ -47,6 +56,19 @@ function createPasswordsRouter(database, masterPassword) {
       response.status(500).send(error.message);
     }
   });
+
+  router.patch("/:name", async (request, response) => {
+    const { name } = request.params;
+    const password = await readPassword(name, database);
+    if (!password) {
+      response.status(404).send(`Password ${name} not found`);
+    }
+
+    const encryptedPassword = encrypt(value, masterPassword);
+    await writePassword(name, encryptedPassword, database);
+    response.status(201).send(`Password for ${name} updated.`);
+  });
+
   return router;
 }
 module.exports = createPasswordsRouter;

@@ -2,7 +2,11 @@ const express = require("express");
 const router = express.Router();
 
 const { encrypt, decrypt } = require("../lib/crypto");
-const { writePassword, readPassword } = require("../lib/passwords");
+const {
+  writePassword,
+  readPassword,
+  deletePassword,
+} = require("../lib/passwords");
 const jwt = require("jsonwebtoken");
 
 function createPasswordsRouter(database, masterPassword) {
@@ -79,6 +83,22 @@ function createPasswordsRouter(database, masterPassword) {
       );
 
       response.status(201).send(`${name} updated.`);
+    } catch (error) {
+      console.log(error);
+      response.status(500).send(error.message);
+    }
+  });
+
+  router.delete("/:name", async (request, response) => {
+    try {
+      const { name } = request.params;
+      const password = await readPassword(name, database);
+      if (!password) {
+        response.status(404).send(`Password ${name} not found`);
+        return;
+      }
+      await deletePassword(name, database);
+      response.status(200).send("Deleted");
     } catch (error) {
       console.log(error);
       response.status(500).send(error.message);

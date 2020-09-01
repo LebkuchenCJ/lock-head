@@ -58,15 +58,31 @@ function createPasswordsRouter(database, masterPassword) {
   });
 
   router.patch("/:name", async (request, response) => {
-    const { name } = request.params;
-    const password = await readPassword(name, database);
-    if (!password) {
-      response.status(404).send(`Password ${name} not found`);
-    }
+    try {
+      const { name } = request.params;
+      const { name: newName, value: newValue } = request.body;
+      const password = await readPassword(name, database);
+      if (!password) {
+        response.status(404).send(`Password ${name} not found`);
+        return;
+      }
 
-    const encryptedPassword = encrypt(value, masterPassword);
-    await writePassword(name, encryptedPassword, database);
-    response.status(201).send(`Password for ${name} updated.`);
+      const collection = database.collection("passwords");
+      collection.updateOne(
+        { name: name },
+        {
+          $set: {
+            name: newName || name,
+            value: newValue ? encrypt(newValue, masterPassword) : password,
+          },
+        }
+      );
+
+      response.status(201).send(`${name} updated.`);
+    } catch (error) {
+      console.log(error);
+      response.status(500).send(error.message);
+    }
   });
 
   return router;

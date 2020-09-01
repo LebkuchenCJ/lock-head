@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.css";
 
 async function login() {
@@ -15,23 +15,27 @@ async function login() {
     body: JSON.stringify(data),
   });
   const result = await response.text();
-  console.log(result);
-  return result;
+  alert(result);
+}
+
+async function getPasswords() {
+  const response = await fetch("/api/passwords/kebab");
+  const result = await response.text();
+  alert(result);
 }
 function App() {
-  async function getPasswords() {
-    await login();
-    const response = await fetch("/api/passwords/kebab");
-    const result = await response.json();
-    console.log(result);
-    return result;
-  }
-  getPasswords();
-
+  const [passwordName, setPasswordName] = useState("");
   return (
     <div className="App">
       <header className="App-header">
-        <p>TEST</p>
+        <button onClick={login}>Login</button>
+        <label>
+          <input
+            value={passwordName}
+            onChange={(event) => setPasswordName(event.target.value)}
+          />
+        </label>
+        <button onClick={() => getPasswords(passwordName)}>Get Password</button>
       </header>
     </div>
   );

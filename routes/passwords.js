@@ -33,6 +33,13 @@ function createPasswordsRouter(database, masterPassword) {
       console.log("POST on /api/passwords");
       const { name, value } = request.body;
       const encryptedPassword = encrypt(value, masterPassword);
+      const password = await readPassword(name, database);
+
+      if (password) {
+        response.status(403).send(`Password ${name} is already declared.`);
+        return;
+      }
+
       await writePassword(name, encryptedPassword, database);
       response.status(201).send("Password created");
     } catch (error) {

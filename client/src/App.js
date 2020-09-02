@@ -19,11 +19,12 @@ async function createPassword(name, value) {
   alert(result);
 }
 
-async function login() {
+async function login(userName, userPassword) {
   const data = {
-    username: "jonas",
-    password: "123",
+    username: userName,
+    password: userPassword,
   };
+  sessionStorage.setItem(`${userName}`, `${userPassword}`);
 
   const response = await fetch("/api/users/login", {
     method: "POST",
@@ -42,12 +43,27 @@ async function getPasswords(name) {
   alert(result);
 }
 function App() {
+  const [userName, setUserName] = useState("");
+  const [userPassword, setUserPassword] = useState("");
   const [passwordName, setPasswordName] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={login}>Login</button>
+        <label>
+          <input
+            placeholder="Enter user name"
+            value={userName}
+            onChange={(event) => setUserName(event.target.value)}
+          />
+          <input
+            placeholder="Enter user password"
+            value={userPassword}
+            type="password"
+            onChange={(event) => setUserPassword(event.target.value)}
+          />
+        </label>
+        <button onClick={() => login(userName, userPassword)}>Login</button>
         <label>
           <input
             value={passwordName}
@@ -64,6 +80,7 @@ function App() {
           <input
             value={passwordValue}
             placeholder="Enter password"
+            type="password"
             onChange={(event) => setPasswordValue(event.target.value)}
           />
         </label>

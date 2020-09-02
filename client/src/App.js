@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
+import useStorage from "./hooks/useStorage";
 
 async function createPassword(name, value) {
   const data = {
@@ -43,8 +44,8 @@ async function getPasswords(name) {
   alert(result);
 }
 function App() {
-  const [userName, setUserName] = useState("");
-  const [userPassword, setUserPassword] = useState("");
+  const [userName, setUserName] = useStorage("userName", "");
+  const [userPassword, setUserPassword] = useStorage("userPassword", "");
   const [passwordName, setPasswordName] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
   return (
